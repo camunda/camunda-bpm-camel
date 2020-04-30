@@ -17,6 +17,30 @@
       <to uri="mock:endpoint"/>
     </route>
 
+    <route id="startRouteReturnVariable">
+      <from uri="direct:startReturnVariable"/>
+      <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>
+      <to uri="camunda-bpm://start?processDefinitionKey=startProcessFromRoute&amp;copyBodyAsVariable=var1&amp;copyVariablesToOutBody=var1"/>
+      <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>
+      <to uri="mock:endpoint"/>
+    </route>
+
+    <route id="startRouteReturnAllVariables">
+      <from uri="direct:startReturnAllVariables"/>
+      <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>
+      <to uri="camunda-bpm://start?processDefinitionKey=startProcessFromRoute&amp;copyBodyAsVariable=var1&amp;copyVariablesToOutBody=*"/>
+      <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>
+      <to uri="mock:endpoint"/>
+    </route>
+
+    <route id="startRouteReturnVariables">
+      <from uri="direct:startReturnVariables"/>
+      <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>
+      <to uri="camunda-bpm://start?processDefinitionKey=startProcessFromRoute&amp;copyBodyAsVariable=var1&amp;copyVariablesToOutBody=var1,var2"/>
+      <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>
+      <to uri="mock:endpoint"/>
+    </route>
+
     <route id="processVariableRoute">
       <from uri="direct:processVariable"/>
       <to uri="log:org.camunda.bpm.camel.spring.samples?level=INFO&amp;showAll=true&amp;multiline=true"/>

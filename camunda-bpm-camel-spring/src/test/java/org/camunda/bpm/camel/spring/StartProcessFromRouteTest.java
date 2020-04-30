@@ -29,6 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.camunda.bpm.camel.component.CamundaBpmConstants.*;
@@ -79,6 +80,79 @@ public class StartProcessFromRouteTest {
 
     // The body of the message comming out from the camunda-bpm:<process definition> endpoint is the process instance
     assertThat(mockEndpoint.assertExchangeReceived(0).getIn().getBody(String.class)).isEqualTo(processInstanceId);
+    
+    // We should receive a hash map as the body of the message with a 'var1' key
+    assertThat(processVariableEndpoint.assertExchangeReceived(0).getIn().getBody(String.class)).isEqualTo("{var1=valueOfVar1}");
+  }
+
+  @Test
+  @Deployment(resources = {"process/StartProcessFromRoute.bpmn20.xml"})
+  public void doTestReturnVariable() throws Exception {
+    ProducerTemplate tpl = camelContext.createProducerTemplate();
+
+    String var1 = (String) tpl.requestBody("direct:startReturnVariable", Collections.singletonMap("var1", "valueOfVar1"));
+    assertThat(var1).isNotNull();
+
+    // Verify that a process instance was executed and there are no instances executing now
+    assertThat(historyService.createHistoricProcessInstanceQuery().processDefinitionKey("startProcessFromRoute").count()).isEqualTo(1);
+    assertThat(runtimeService.createProcessInstanceQuery().processDefinitionKey("startProcessFromRoute").count()).isEqualTo(0);
+
+    // Assert that the camunda BPM process instance ID has been added as a property to the message
+    assertThat(mockEndpoint.assertExchangeReceived(0).getProperty(EXCHANGE_HEADER_PROCESS_INSTANCE_ID)).isNotNull();
+
+    // The body of the message comming out from the camunda-bpm:<process definition> endpoint is the process instance
+    assertThat(var1).isEqualTo("valueOfVar1");
+    assertThat(mockEndpoint.assertExchangeReceived(0).getIn().getBody(String.class)).isEqualTo(var1);
+    
+    // We should receive a hash map as the body of the message with a 'var1' key
+    assertThat(processVariableEndpoint.assertExchangeReceived(0).getIn().getBody(String.class)).isEqualTo("{var1=valueOfVar1}");
+  }
+
+  @Test
+  @Deployment(resources = {"process/StartProcessFromRoute.bpmn20.xml"})
+  public void doTestReturnVariables() throws Exception {
+    ProducerTemplate tpl = camelContext.createProducerTemplate();
+
+    Map<String, Object> vars = (Map<String, Object>) tpl.requestBody("direct:startReturnVariables", Collections.singletonMap("var1", "valueOfVar1"));
+    assertThat(vars).isNotNull();
+
+    // Verify that a process instance was executed and there are no instances executing now
+    assertThat(historyService.createHistoricProcessInstanceQuery().processDefinitionKey("startProcessFromRoute").count()).isEqualTo(1);
+    assertThat(runtimeService.createProcessInstanceQuery().processDefinitionKey("startProcessFromRoute").count()).isEqualTo(0);
+
+    // Assert that the camunda BPM process instance ID has been added as a property to the message
+    assertThat(mockEndpoint.assertExchangeReceived(0).getProperty(EXCHANGE_HEADER_PROCESS_INSTANCE_ID)).isNotNull();
+
+    // The body of the message comming out from the camunda-bpm:<process definition> endpoint is the process instance
+    assertThat(vars).isNotNull();
+    assertThat(vars.size()).isEqualTo(1);
+    assertThat(vars.get("var1")).isEqualTo("valueOfVar1");
+    assertThat(mockEndpoint.assertExchangeReceived(0).getIn().getBody(Map.class)).isEqualTo(vars);
+    
+    // We should receive a hash map as the body of the message with a 'var1' key
+    assertThat(processVariableEndpoint.assertExchangeReceived(0).getIn().getBody(String.class)).isEqualTo("{var1=valueOfVar1}");
+  }
+
+  @Test
+  @Deployment(resources = {"process/StartProcessFromRoute.bpmn20.xml"})
+  public void doTestReturnAllVariables() throws Exception {
+    ProducerTemplate tpl = camelContext.createProducerTemplate();
+
+    Map<String, Object> vars = (Map<String, Object>) tpl.requestBody("direct:startReturnAllVariables", Collections.singletonMap("var1", "valueOfVar1"));
+    assertThat(vars).isNotNull();
+
+    // Verify that a process instance was executed and there are no instances executing now
+    assertThat(historyService.createHistoricProcessInstanceQuery().processDefinitionKey("startProcessFromRoute").count()).isEqualTo(1);
+    assertThat(runtimeService.createProcessInstanceQuery().processDefinitionKey("startProcessFromRoute").count()).isEqualTo(0);
+
+    // Assert that the camunda BPM process instance ID has been added as a property to the message
+    assertThat(mockEndpoint.assertExchangeReceived(0).getProperty(EXCHANGE_HEADER_PROCESS_INSTANCE_ID)).isNotNull();
+
+    // The body of the message comming out from the camunda-bpm:<process definition> endpoint is the process instance
+    assertThat(vars).isNotNull();
+    assertThat(vars.size()).isEqualTo(1);
+    assertThat(vars.get("var1")).isEqualTo("valueOfVar1");
+    assertThat(mockEndpoint.assertExchangeReceived(0).getIn().getBody(Map.class)).isEqualTo(vars);
     
     // We should receive a hash map as the body of the message with a 'var1' key
     assertThat(processVariableEndpoint.assertExchangeReceived(0).getIn().getBody(String.class)).isEqualTo("{var1=valueOfVar1}");

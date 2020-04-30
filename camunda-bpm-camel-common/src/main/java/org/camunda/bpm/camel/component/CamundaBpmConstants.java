@@ -45,6 +45,7 @@ public final class CamundaBpmConstants {
     public final static String COPY_MESSAGE_PROPERTIES_PARAMETER = "copyProperties";
     public final static String COPY_MESSAGE_HEADERS_PARAMETER = "copyHeaders";
     public final static String COPY_MESSAGE_BODY_AS_PROCESS_VARIABLE_PARAMETER = "copyBodyAsVariable";
+    public final static String COPY_PROCESS_VARIABLES_TO_OUT_BODY_PARAMETER = "copyVariablesToOutBody";
 
     private CamundaBpmConstants() {
     } // prevent instantiation of helper class
