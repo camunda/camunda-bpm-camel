@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.apache.camel.*;
+
 import org.camunda.bpm.camel.BaseCamelTest;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.context.BpmnExecutionContext;
@@ -68,9 +69,10 @@ public class CamelServiceTest extends BaseCamelTest {
 
   @Test
   public void testSendToEndpoint() throws Exception {
-    Exchange send = mock(Exchange.class);
     Message message = mock(Message.class);
-    when(send.getIn()).thenReturn(message);
+    Exchange send = new DefaultExchange(mock(CamelContext.class));
+    send.setIn(message);
+    send.setOut(null);
     when(producerTemplate.send(anyString(), any(Exchange.class))).thenReturn(
         send);
 
@@ -93,10 +95,37 @@ public class CamelServiceTest extends BaseCamelTest {
   }
 
   @Test
+  public void testSendToEndpointReturningOutMessage() throws Exception {
+    Message message = mock(Message.class);
+    Exchange send = new DefaultExchange(mock(CamelContext.class));
+    send.setIn(null);
+    send.setOut(message);
+    when(producerTemplate.send(anyString(), any(Exchange.class))).thenReturn(
+            send);
+
+    ArgumentCaptor<Exchange> exchangeCaptor = ArgumentCaptor
+            .forClass(Exchange.class);
+
+    service.sendTo("what/ever");
+
+    verify(producerTemplate).send(anyString(), exchangeCaptor.capture());
+    verify(execution).getVariableNames();
+
+    assertThat(exchangeCaptor.getValue().getProperty(EXCHANGE_HEADER_BUSINESS_KEY))
+            .isEqualTo("theBusinessKey");
+    assertThat(
+            exchangeCaptor.getValue().getProperty(EXCHANGE_HEADER_CORRELATION_KEY))
+            .isNull();
+    assertThat(
+            exchangeCaptor.getValue().getProperty(EXCHANGE_HEADER_PROCESS_INSTANCE_ID))
+            .isEqualTo("theProcessInstanceId");
+  }
+
+  @Test
   public void testSendToEndpointWithNoVariables() throws Exception {
     Exchange send = mock(Exchange.class);
     Message message = mock(Message.class);
-    when(send.getIn()).thenReturn(message);
+    when(send.getOut()).thenReturn(message);
     when(producerTemplate.send(anyString(), any(Exchange.class))).thenReturn(
         send);
 
@@ -113,7 +142,7 @@ public class CamelServiceTest extends BaseCamelTest {
   public void testSendToEndpointWithOneVariable() throws Exception {
     Exchange send = mock(Exchange.class);
     Message message = mock(Message.class);
-    when(send.getIn()).thenReturn(message);
+    when(send.getOut()).thenReturn(message);
     when(producerTemplate.send(anyString(), any(Exchange.class))).thenReturn(
         send);
 
@@ -131,7 +160,7 @@ public class CamelServiceTest extends BaseCamelTest {
   public void testSendToEndpointWithAlleVariables() throws Exception {
     Exchange send = mock(Exchange.class);
     Message message = mock(Message.class);
-    when(send.getIn()).thenReturn(message);
+    when(send.getOut()).thenReturn(message);
     when(producerTemplate.send(anyString(), any(Exchange.class))).thenReturn(
         send);
 
@@ -148,7 +177,7 @@ public class CamelServiceTest extends BaseCamelTest {
   public void testSendToEndpointWithCorrelation() throws Exception {
     Exchange send = mock(Exchange.class);
     Message message = mock(Message.class);
-    when(send.getIn()).thenReturn(message);
+    when(send.getOut()).thenReturn(message);
     when(producerTemplate.send(anyString(), any(Exchange.class))).thenReturn(
         send);
 
